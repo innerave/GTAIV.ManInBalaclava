@@ -13,13 +13,9 @@ namespace ManInBalaclava.net
 	{
 		private readonly Keys maskKey;
 		private readonly Keys glovesKey;
-		private bool usingMask;
-		private bool usingGloves;
 		private readonly AnimationSet maskAnimationSet;
 		private readonly AnimationSet glovesAnimationSet;
 		private readonly Random random = new Random();
-		private int diedCount;
-		private int arrestedCount;
 
 		public ManInBalaclavaScript()
 		{
@@ -28,8 +24,6 @@ namespace ManInBalaclava.net
 			maskAnimationSet = new AnimationSet("playidles_cold");
 			glovesAnimationSet = new AnimationSet("amb@atm");
 			Interval = 1500;
-			diedCount = Game.GetIntegerStatistic(IntegerStatistic.TIMES_DIED);
-			arrestedCount = Game.GetIntegerStatistic(IntegerStatistic.TIMES_BUSTED);
 			if (!File.Exists(Settings.Filename))
 			{
 				Settings.SetValue("MaskKey", "Keys", Keys.M);
@@ -63,6 +57,16 @@ namespace ManInBalaclava.net
 			Player.Character.Task.ClearAll();
 		}
 
+		private void ToggleGloves()
+		{
+			if (NotAllowedNow()) return;
+			Player.Character.Animation.Play(glovesAnimationSet, "m_getoutwallet_chest", 2f);
+			Game.WaitInCurrentScript(600);
+			SetGlovesModel();
+			Player.Character.Task.ClearAll();
+			Player.Character.FleeByVehicle(Player.Character.CurrentVehicle);
+		}
+
 		private bool NotAllowedNow() =>
 			IsPlayerBeingArrested()
 			|| Player.Character.isInVehicle()
@@ -72,25 +76,30 @@ namespace ManInBalaclava.net
 			|| Player.Character.isSwimming
 			|| Player.Character.isSwimming;
 
-		private void ToggleGloves()
+		private static bool IsPlayerBeingArrested() => Function.Call<bool>("IS_PLAYER_BEING_ARRESTED");
+
+		private void SetMaskModel()
 		{
-			if (NotAllowedNow()) return;
-			Player.Character.Animation.Play(glovesAnimationSet, "m_getoutwallet_chest", 2f);
-			Game.WaitInCurrentScript(600);
-			SetGlovesModel();
-			Player.Character.Task.ClearAll();
+			Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 8,
+				UsingMask() ? 0 : 1, 0);
 		}
+
+		private void SetGlovesModel()
+		{
+			Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 4,
+				UsingGloves() ? 0 : 1, 0);
+		}
+
+		private bool UsingMask() => Function.Call<int>("GET_CHAR_DRAWABLE_VARIATION", Player.Character, 8) == 1;
+
+		private bool UsingGloves() => Function.Call<int>("GET_CHAR_DRAWABLE_VARIATION", Player.Character, 4) == 1;
 
 		private void OnTick(object sender, EventArgs e)
 		{
-			if (!usingMask) return;
-			CheckIfDied();
-			CheckIfArrested();
-
+			if (!UsingMask()) return;
 			foreach (var ped in GetNearbyPeds(15f)
 				.Where(p => !p.isInGroup)
-				.Where(p => !p.isRequiredForMission)
-				.Where(p => p.RelationshipGroup != RelationshipGroup.Player))
+				.Where(p => !p.isRequiredForMission))
 			{
 				if (IsFacingPlayer(ped))
 				{
@@ -99,52 +108,10 @@ namespace ManInBalaclava.net
 			}
 		}
 
-		private void CheckIfDied()
-		{
-			if (diedCount >= Game.GetIntegerStatistic(IntegerStatistic.TIMES_DIED)) return;
-			while (Player.Character.isDead)
-			{
-				Game.WaitInCurrentScript(100);
-			}
-
-			diedCount = Game.GetIntegerStatistic(IntegerStatistic.TIMES_DIED);
-			Reset();
-		}
-
-		private void CheckIfArrested()
-		{
-			if (arrestedCount >= Game.GetIntegerStatistic(IntegerStatistic.TIMES_BUSTED)) return;
-			//After the player has been completely arrested
-			//(i.e., the arrest is counted in the statistics and the player cannot escape),
-			//the game thinks that we can still control the character
-			//(despite the fact that we cannot move).
-			//Thus, we wait until the screen goes off
-			//and the player "loses control" according to the logic of the game.
-			while (Player.CanControlCharacter)
-			{
-				Game.WaitInCurrentScript(100);
-			}
-
-			arrestedCount = Game.GetIntegerStatistic(IntegerStatistic.TIMES_BUSTED);
-			Reset();
-		}
-
-		private void Reset()
-		{
-			// Mask
-			Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 8, 0, 0);
-			usingMask = false;
-			// Gloves
-			Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 4, 0, 0);
-			usingGloves = false;
-		}
-
 		private IEnumerable<Ped> GetNearbyPeds(float radius) =>
 			World.GetPeds(Player.Character.Position, radius).Where(Exists).Where(p => p != Player.Character);
 
 		private bool IsFacingPlayer(Ped ped) => Function.Call<bool>("IS_CHAR_FACING_CHAR", ped, Player.Character, 90f);
-
-		private static bool IsPlayerBeingArrested() => Function.Call<bool>("IS_PLAYER_BEING_ARRESTED");
 
 		private void SetPedReactionToMask(Ped ped)
 		{
@@ -189,18 +156,33 @@ namespace ManInBalaclava.net
 				|| ped.isInVehicle()
 				|| ped.isInjured
 				|| !ped.isAliveAndWell) return;
-			if (
-				ped.Weapons.AnyHandgun.isPresent
-				|| ped.Weapons.AnyShotgun.isPresent
-				|| ped.Weapons.AnySMG.isPresent
-				|| ped.Weapons.AnyAssaultRifle.isPresent)
+			if (AnyFirearmIsPresent(ped))
 			{
-				PlaySpeechByCriminal(ped);
+				var otherNearbyPeds = GetNearbyPeds(30f).Where(p => p != ped).ToList();
+
+				if (
+					otherNearbyPeds.Any(p => p.PedType == ped.PedType)
+					&& otherNearbyPeds.All(p => p.PedType != PedType.Cop))
+				{
+					ped.Task.FightAgainst(Player.Character);
+				}
+				else
+				{
+					PlaySpeechByCriminal(ped);
+				}
 			}
 			else
 			{
 				ped.Task.FleeFromChar(Player.Character);
 			}
+		}
+
+		private static bool AnyFirearmIsPresent(Ped ped)
+		{
+			return ped.Weapons.AnyHandgun.isPresent
+			|| ped.Weapons.AnyShotgun.isPresent
+			|| ped.Weapons.AnySMG.isPresent
+			|| ped.Weapons.AnyAssaultRifle.isPresent;
 		}
 
 		private void PlaySpeechByCriminal(Ped ped)
@@ -229,34 +211,6 @@ namespace ManInBalaclava.net
 			else
 			{
 				ped.Task.FleeFromChar(Player.Character, true);
-			}
-		}
-
-		private void SetMaskModel()
-		{
-			if (usingMask)
-			{
-				Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 8, 0, 0);
-				usingMask = false;
-			}
-			else
-			{
-				Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 8, 1, 0);
-				usingMask = true;
-			}
-		}
-
-		private void SetGlovesModel()
-		{
-			if (usingGloves)
-			{
-				Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 4, 0, 0);
-				usingGloves = false;
-			}
-			else
-			{
-				Function.Call("SET_CHAR_COMPONENT_VARIATION", Player.Character, 4, 1, 0);
-				usingGloves = true;
 			}
 		}
 	}
