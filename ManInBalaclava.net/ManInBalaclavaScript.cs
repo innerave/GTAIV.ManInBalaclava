@@ -74,7 +74,9 @@ namespace ManInBalaclava.net
 			|| !Player.CanControlCharacter
 			|| Player.Character.isRagdoll
 			|| Player.Character.isSwimming
-			|| Player.Character.isSwimming;
+			|| IsPlayerClimbing();
+
+		private bool IsPlayerClimbing() => Function.Call<bool>("IS_PED_CLIMBING", Player.Character);
 
 		private static bool IsPlayerBeingArrested() => Function.Call<bool>("IS_PLAYER_BEING_ARRESTED");
 
@@ -180,9 +182,9 @@ namespace ManInBalaclava.net
 		private static bool AnyFirearmIsPresent(Ped ped)
 		{
 			return ped.Weapons.AnyHandgun.isPresent
-			|| ped.Weapons.AnyShotgun.isPresent
-			|| ped.Weapons.AnySMG.isPresent
-			|| ped.Weapons.AnyAssaultRifle.isPresent;
+			       || ped.Weapons.AnyShotgun.isPresent
+			       || ped.Weapons.AnySMG.isPresent
+			       || ped.Weapons.AnyAssaultRifle.isPresent;
 		}
 
 		private void PlaySpeechByCriminal(Ped ped)
