@@ -69,6 +69,7 @@ namespace ManInBalaclava.net
 			|| Player.Character.isDead
 			|| !Player.CanControlCharacter
 			|| Player.Character.isRagdoll
+			|| Player.Character.isSwimming
 			|| Player.Character.isSwimming;
 
 		private void ToggleGloves()
@@ -227,7 +228,7 @@ namespace ManInBalaclava.net
 			}
 			else
 			{
-				ped.Task.FleeFromChar(Player.Character);
+				ped.Task.FleeFromChar(Player.Character, true);
 			}
 		}
 
