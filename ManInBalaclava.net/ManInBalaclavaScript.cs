@@ -64,7 +64,6 @@ namespace ManInBalaclava.net
 			Game.WaitInCurrentScript(600);
 			SetGlovesModel();
 			Player.Character.Task.ClearAll();
-			Player.Character.FleeByVehicle(Player.Character.CurrentVehicle);
 		}
 
 		private bool NotAllowedNow() =>
