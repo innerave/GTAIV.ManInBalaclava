@@ -7,29 +7,18 @@
         <ProjectGuid>{4D073F60-6691-48A3-8BCA-C8833D5A1CE0}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>ManInBalaclava.net</RootNamespace>
+        <RootNamespace>ManInBalaclava</RootNamespace>
         <AssemblyName>ManInBalaclava.net</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
+        <LangVersion>10</LangVersion>
+        <SignAssembly>false</SignAssembly>
+        <PublicSign>false</PublicSign>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
         <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
+        <Optimize>true</Optimize>
+        <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="ScriptHookDotNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -42,8 +31,25 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="ManInBalaclavaScript.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Extensions\DictionaryExtensions.cs"/>
+        <Compile Include="Extensions\PedExtensions.cs"/>
+        <Compile Include="Extensions\PlayerExtensions.cs"/>
+        <Compile Include="PedTracker.cs"/>
+        <Compile Include="NpcReactionsFactory.cs"/>
+        <Compile Include="Reactions\Cop.cs"/>
+        <Compile Include="Reactions\Escapee.cs"/>
+        <Compile Include="Main.cs"/>
+        <Compile Include="Reactions\NullNpcReaction.cs"/>
+        <Compile Include="Reactions\NpcReaction.cs"/>
+        <Compile Include="States\Common\Finished.cs"/>
+        <Compile Include="States\Common\Initial.cs"/>
+        <Compile Include="States\Common\SawBalaclava.cs"/>
+        <Compile Include="States\DrivingAway.cs"/>
+        <Compile Include="States\Fleeing.cs"/>
+        <Compile Include="States\IState.cs"/>
+        <Compile Include="States\StartingChase.cs"/>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="StateMachine.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
