@@ -14,7 +14,7 @@ namespace ManInBalaclava.Reactions
 			var finished = new Finished(this);
 			var startingChase = new StartingChase(this);
 
-			AddTransition(initial, sawBalaclava, () => Player.IsUsingMask() || !Player.IsWanted());
+			AddTransition(initial, sawBalaclava, () => Player.IsUsingMask() && !Player.IsWanted());
 			AddTransition(sawBalaclava, startingChase, () => true);
 
 			StateMachine.AddAnyTransition(finished, () => !ReactingPed.isAliveAndWell || Player.IsWanted());
