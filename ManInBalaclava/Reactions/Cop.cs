@@ -17,7 +17,8 @@ namespace ManInBalaclava.Reactions
 			AddTransition(initial, sawBalaclava, () => Player.IsUsingMask() && !Player.IsWanted());
 			AddTransition(sawBalaclava, startingChase, () => true);
 
-			StateMachine.AddAnyTransition(finished, () => !ReactingPed.isAliveAndWell || Player.IsWanted());
+			StateMachine.AddAnyTransition(finished,
+				() => ReactingPed.isDead || ReactingPed.isInjured || Player.IsWanted());
 			StateMachine.SetState(initial);
 		}
 	}

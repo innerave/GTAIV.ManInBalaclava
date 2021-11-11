@@ -4,12 +4,11 @@ using ManInBalaclava.States;
 
 namespace ManInBalaclava.Reactions
 {
-	public abstract class NpcReaction
+	public abstract class NpcReaction : IDisposable
 	{
-		public Ped ReactingPed { get; }
-		public Player Player { get; }
+		public Ped ReactingPed { get; private set; }
 
-		public bool NpcWasOriginallyAMissionCharacter { get; }
+		public Player Player { get; }
 
 		public bool Finished { get; set; }
 
@@ -18,12 +17,6 @@ namespace ManInBalaclava.Reactions
 		protected NpcReaction(Ped reactingPed, Player player)
 		{
 			ReactingPed = reactingPed;
-			NpcWasOriginallyAMissionCharacter = ReactingPed.isRequiredForMission;
-			if (!NpcWasOriginallyAMissionCharacter)
-			{
-				ReactingPed.isRequiredForMission = true;
-			}
-
 			Player = player;
 			StateMachine = new StateMachine();
 		}
@@ -32,5 +25,10 @@ namespace ManInBalaclava.Reactions
 
 		protected void AddTransition(IState from, IState to, Func<bool> condition) =>
 			StateMachine.AddTransition(from, to, condition);
+
+		public void Dispose()
+		{
+			ReactingPed = null;
+		}
 	}
 }

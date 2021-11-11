@@ -25,7 +25,8 @@ namespace ManInBalaclava.Reactions
 			AddTransition(sawBalaclava, drivingAway, ReactingPed.isInVehicle);
 
 			StateMachine.AddAnyTransition(finished,
-				() => !ReactingPed.isAliveAndWell || ReactingPed.isInCombat || ReactingPed.IsFarFrom(Player.Character));
+				() => ReactingPed.isDead || ReactingPed.isInjured || ReactingPed.isInCombat ||
+				      ReactingPed.IsFarFrom(Player.Character));
 			StateMachine.SetState(initial);
 		}
 	}

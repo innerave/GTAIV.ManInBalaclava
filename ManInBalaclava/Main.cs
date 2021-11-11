@@ -48,16 +48,22 @@ namespace ManInBalaclava
 
 		private void OnTick(object sender, EventArgs e)
 		{
-			pedTracker.Update();
-			if (!Player.IsUsingMask()) return;
-			foreach (var ped in GetNearbyPeds(20f)
-				.Where(p => !p.isInGroup))
+			Game.DisplayText($"Tracked: {pedTracker.Count()}");
+			if (Player.IsUsingMask())
 			{
-				if (ped.IsLookingAt(Player.Character))
+				foreach (var ped in GetNearbyPeds(20f)
+					.Where(p => !p.isInGroup)
+					.Where(p => p.isAliveAndWell)
+					.Where(p => !p.isRequiredForMission))
 				{
-					pedTracker.AddIfNotTracked(ped, Player);
+					if (ped.IsLookingAt(Player.Character))
+					{
+						pedTracker.AddIfNotTracked(ped, Player);
+					}
 				}
 			}
+
+			pedTracker.Update();
 		}
 
 		private IEnumerable<Ped> GetNearbyPeds(float radius) =>

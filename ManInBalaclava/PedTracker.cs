@@ -14,17 +14,6 @@ namespace ManInBalaclava
 
 		public void Update()
 		{
-			while (finished.Count > 0)
-			{
-				var npcReaction = finished.Dequeue();
-				var reactingPed = npcReaction.ReactingPed;
-				npcReactions.Remove(reactingPed);
-				if (!npcReaction.NpcWasOriginallyAMissionCharacter)
-				{
-					reactingPed.isRequiredForMission = false;
-				}
-			}
-
 			foreach (var reaction in npcReactions)
 			{
 				if (reaction.Value.Finished)
@@ -35,6 +24,13 @@ namespace ManInBalaclava
 				{
 					reaction.Value.Update();
 				}
+			}
+
+			while (finished.Count > 0)
+			{
+				var npcReaction = finished.Dequeue();
+				var reactingPed = npcReaction.ReactingPed;
+				npcReactions.Remove(reactingPed);
 			}
 		}
 
