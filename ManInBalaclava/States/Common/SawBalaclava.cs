@@ -2,25 +2,25 @@
 
 namespace ManInBalaclava.States.Common
 {
-	public class SawBalaclava : IState
-	{
-		private NpcReaction NpcReaction { get; }
+    public class SawBalaclava : IState
+    {
+        public SawBalaclava(IReaction reaction)
+        {
+            _reaction = reaction;
+        }
 
-		public SawBalaclava(NpcReaction npcReaction)
-		{
-			NpcReaction = npcReaction;
-		}
+        private IReaction _reaction;
 
-		public void Tick()
-		{
-		}
+        public void Tick()
+        {
+        }
 
-		public void OnEnter()
-		{
-		}
+        public void OnEnter()
+        {
+        }
 
-		public void OnExit()
-		{
-		}
-	}
+        public void OnExit()
+        {
+        }
+    }
 }

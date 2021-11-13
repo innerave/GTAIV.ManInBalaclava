@@ -9,64 +9,54 @@ using KeyEventArgs = GTA.KeyEventArgs;
 
 namespace ManInBalaclava
 {
-	public class Main : Script
-	{
-		private Keys MaskKey { get; }
-		private Keys GlovesKey { get; }
+    public class Main : Script
+    {
+        private readonly PedTracker _pedTracker;
 
-		private readonly PedTracker pedTracker;
+        public Main()
+        {
+            if (!File.Exists(Settings.Filename))
+            {
+                Settings.SetValue("MaskKey", "Keys", Keys.M);
+                Settings.SetValue("GlovesKey", "Keys", Keys.G);
+                Settings.SetValue("PercentageOfFleeingCiviliansWhoCallThePolice", "Gameplay", 20);
+                Settings.Save();
+            }
 
-		public Main()
-		{
-			if (!File.Exists(Settings.Filename))
-			{
-				Settings.SetValue("MaskKey", "Keys", Keys.M);
-				Settings.SetValue("GlovesKey", "Keys", Keys.G);
-				Settings.Save();
-			}
+            _maskKey = Settings.GetValueKey("MaskKey", "Keys", Keys.M);
+            _glovesKey = Settings.GetValueKey("GlovesKey", "Keys", Keys.G);
+            var percentageOfSnitches = Settings.GetValueInteger("PercentageOfFleeingCiviliansWhoCallThePolice", "Gameplay", 20);
+            if (percentageOfSnitches is < 0 or > 100)
+            {
+                percentageOfSnitches = 20;
+            }
+            _pedTracker = new PedTracker(percentageOfSnitches);
+            KeyUp += OnKeyUp;
+            Tick += OnTick;
+            Interval = 500;
+        }
+        
+        private readonly Keys _maskKey;
+        private readonly Keys _glovesKey;
 
-			MaskKey = Settings.GetValueKey("MaskKey", "Keys", Keys.M);
-			GlovesKey = Settings.GetValueKey("GlovesKey", "Keys", Keys.G);
-			pedTracker = new PedTracker();
-			KeyUp += OnKeyUp;
-			Tick += OnTick;
-			Interval = 500;
-		}
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == _maskKey) Player.ToggleMask();
 
-		private void OnKeyUp(object sender, KeyEventArgs e)
-		{
-			if (e.Key == MaskKey)
-			{
-				Player.ToggleMask();
-			}
+            if (e.Key == _glovesKey) Player.ToggleGloves();
+        }
 
-			if (e.Key == GlovesKey)
-			{
-				Player.ToggleGloves();
-			}
-		}
+        private void OnTick(object sender, EventArgs e)
+        {
+            if (Player.IsUsingMask())
+                foreach (var ped in Player.Character.GetOthersAliveNearby(20f)
+                    .Where(p => !p.isInGroup)
+                    .Where(p => p.isAliveAndWell)
+                    .WhereIsNotRequiredExceptCops())
+                    if (ped.IsLookingAt(Player.Character))
+                        _pedTracker.AddIfNotTracked(ped, Player);
 
-		private void OnTick(object sender, EventArgs e)
-		{
-			Game.DisplayText($"Tracked: {pedTracker.Count()}");
-			if (Player.IsUsingMask())
-			{
-				foreach (var ped in GetNearbyPeds(20f)
-					.Where(p => !p.isInGroup)
-					.Where(p => p.isAliveAndWell)
-					.Where(p => !p.isRequiredForMission))
-				{
-					if (ped.IsLookingAt(Player.Character))
-					{
-						pedTracker.AddIfNotTracked(ped, Player);
-					}
-				}
-			}
-
-			pedTracker.Update();
-		}
-
-		private IEnumerable<Ped> GetNearbyPeds(float radius) =>
-			World.GetPeds(Player.Character.Position, radius).Where(Exists).Where(p => p != Player.Character);
-	}
+            _pedTracker.Update();
+        }
+    }
 }

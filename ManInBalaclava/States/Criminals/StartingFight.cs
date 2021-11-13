@@ -1,10 +1,10 @@
 ﻿using ManInBalaclava.Reactions;
 
-namespace ManInBalaclava.States.Common
+namespace ManInBalaclava.States.Criminals
 {
-    public class Finished : IState
+    public class StartingFight : IState
     {
-        public Finished(IReaction reaction)
+        public StartingFight(IReaction reaction)
         {
             _reaction = reaction;
         }
@@ -17,7 +17,7 @@ namespace ManInBalaclava.States.Common
 
         public void OnEnter()
         {
-            _reaction.Finished = true;
+            _reaction.ReactingPed.Task.FightAgainst(_reaction.Player.Character);
         }
 
         public void OnExit()

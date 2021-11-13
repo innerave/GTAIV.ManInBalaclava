@@ -22,7 +22,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="ScriptHookDotNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\SDK\ScriptHookDotNet.dll</HintPath>
+            <HintPath>..\..\..\SDK\ScriptHookDotNet.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
@@ -31,25 +31,30 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Extensions\DictionaryExtensions.cs"/>
-        <Compile Include="Extensions\PedExtensions.cs"/>
-        <Compile Include="Extensions\PlayerExtensions.cs"/>
-        <Compile Include="PedTracker.cs"/>
-        <Compile Include="NpcReactionsFactory.cs"/>
-        <Compile Include="Reactions\Cop.cs"/>
-        <Compile Include="Reactions\Escapee.cs"/>
-        <Compile Include="Main.cs"/>
-        <Compile Include="Reactions\NullNpcReaction.cs"/>
-        <Compile Include="Reactions\NpcReaction.cs"/>
-        <Compile Include="States\Common\Finished.cs"/>
-        <Compile Include="States\Common\Initial.cs"/>
-        <Compile Include="States\Common\SawBalaclava.cs"/>
-        <Compile Include="States\DrivingAway.cs"/>
-        <Compile Include="States\Fleeing.cs"/>
-        <Compile Include="States\IState.cs"/>
-        <Compile Include="States\StartingChase.cs"/>
-        <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="StateMachine.cs"/>
+        <Compile Include="Extensions\PedExtensions.cs" />
+        <Compile Include="Extensions\PlayerExtensions.cs" />
+        <Compile Include="PedTracker.cs" />
+        <Compile Include="ReactionsFactory.cs" />
+        <Compile Include="Reactions\Cop.cs" />
+        <Compile Include="Reactions\Criminal.cs" />
+        <Compile Include="Reactions\Escapee.cs" />
+        <Compile Include="Main.cs" />
+        <Compile Include="Reactions\IReaction.cs" />
+        <Compile Include="Reactions\NullReaction.cs" />
+        <Compile Include="Reactions\BaseReaction.cs" />
+        <Compile Include="Reactions\Snitch.cs" />
+        <Compile Include="States\Common\DrivingAway.cs" />
+        <Compile Include="States\Common\Finished.cs" />
+        <Compile Include="States\Common\Fleeing.cs" />
+        <Compile Include="States\Common\Initial.cs" />
+        <Compile Include="States\Common\SawBalaclava.cs" />
+        <Compile Include="States\Cops\StartingChase.cs" />
+        <Compile Include="States\Criminals\StartingFight.cs" />
+        <Compile Include="States\Criminals\Threatens.cs" />
+        <Compile Include="States\IState.cs" />
+        <Compile Include="States\Snitch\CallingCops.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="States\StateMachine.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,17 +1,17 @@
 ﻿namespace ManInBalaclava.States.Common
 {
-	public class Initial : IState
-	{
-		public void Tick()
-		{
-		}
+    public class Initial : IState
+    {
+        public void Tick()
+        {
+        }
 
-		public void OnEnter()
-		{
-		}
+        public void OnEnter()
+        {
+        }
 
-		public void OnExit()
-		{
-		}
-	}
+        public void OnExit()
+        {
+        }
+    }
 }
